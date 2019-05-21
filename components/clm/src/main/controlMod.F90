@@ -267,6 +267,9 @@ contains
          use_vsfm, vsfm_satfunc_type, vsfm_use_dynamic_linesearch, &
          vsfm_lateral_model_type, vsfm_include_seepage_bc
 
+    namelist /clm_inparm / &
+         use_pflotran_via_emi
+
     namelist /clm_inparm/ &
        lateral_connectivity, domain_decomp_type
 
@@ -780,6 +783,9 @@ contains
 
     ! PETSc-based thermal model
     call mpi_bcast (use_petsc_thermal_model, 1, MPI_LOGICAL, 0, mpicom, ier)
+
+    ! ELM-PFLOTRAN coupling
+    call mpi_bcast (use_pflotran_via_emi, 1, MPI_LOGICAL, 0, mpicom, ier)
 
     ! Budget
     call mpi_bcast (do_budgets   , 1, MPI_LOGICAL, 0, mpicom, ier)
