@@ -117,6 +117,7 @@ module ExternalModelPFLOTRANMod
      procedure, public :: PreInit                 => EM_PFLOTRAN_PreInit
      procedure, public :: Init                    => EM_PFLOTRAN_Init
      procedure, public :: Solve                   => EM_PFLOTRAN_Solve
+     procedure, public :: WriteRestart            => EM_PFLOTRAN_Write_Restart
 
   end type em_pflotran_type
 
@@ -1335,6 +1336,26 @@ contains
     deallocate(sat_col_1d             )
 
   end subroutine EM_PFLOTRAN_Solve_Soil_Hydro
+
+  !------------------------------------------------------------------------
+  subroutine EM_PFLOTRAN_Write_Restart(this, date_stamp)
+    !
+    ! !DESCRIPTION:
+    ! Writes PFLOTRAN checkpoint file
+    !
+    implicit none
+    !
+    ! !ARGUMENTS:
+    class(em_pflotran_type)        :: this
+    character(len=*)               :: date_stamp
+    !
+    character(len=MAXSTRINGLENGTH) :: date_stamp_for_pflotran
+
+    write(date_stamp_for_pflotran,*)
+    date_stamp_for_pflotran = '-' // trim(date_stamp)
+    call pflotranModelStepperCheckpoint( this%pflotran_m, date_stamp_for_pflotran )
+
+  end subroutine EM_PFLOTRAN_Write_Restart
 
 #endif
 end module ExternalModelPFLOTRANMod

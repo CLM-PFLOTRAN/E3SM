@@ -71,6 +71,7 @@ module ExternalModelInterfaceMod
   public :: EMI_Driver
   public :: EMI_Set_Restart_Stamp
   public :: EMI_ReadNameList_For_PFLOTRAN
+  public :: EMI_Write_Restart
 
 contains
 
@@ -1375,5 +1376,38 @@ contains
     enddo
 
   end subroutine EMID_Verify_All_Data_Is_Set
+
+!-----------------------------------------------------------------------
+  subroutine EMI_Write_Restart(em_id, date_stamp)
+    !
+    use ExternalModelConstants, only : EM_ID_BETR
+    use ExternalModelConstants, only : EM_ID_FATES
+    use ExternalModelConstants, only : EM_ID_PFLOTRAN
+    use ExternalModelConstants, only : EM_ID_VSFM
+    use ExternalModelConstants, only : EM_ID_PTM
+    use ExternalModelConstants, only : EM_ID_STUB
+    !
+    implicit none
+    !
+    integer, intent(in)  :: em_id
+    character(len=*), intent(in) :: date_stamp
+    !
+    integer :: iem, clump_rank
+
+    select case (em_id)
+    case (EM_ID_PFLOTRAN)
+       do clump_rank = 1, nclumps
+          iem = (index_em_pflotran-1)*nclumps + clump_rank
+
+          select type(em_pflotran)
+          class is(em_pflotran_type)
+             call em_pflotran(clump_rank)%WriteRestart(date_stamp)
+          end select
+       end do
+    case default
+       call endrun('Writing restart is not support')
+    end select
+
+  end subroutine EMI_Write_Restart
 
 end module ExternalModelInterfaceMod

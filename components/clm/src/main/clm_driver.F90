@@ -172,6 +172,9 @@ module clm_driver
   use clm_varctl                  , only : budget_ann, budget_ltann, budget_ltend
 
   !
+  use ExternalModelInterfaceMod  , only : EMI_Write_Restart
+  use ExternalModelConstants     , only : EM_ID_PFLOTRAN
+  !
   ! !PUBLIC TYPES:
   implicit none
   !
@@ -1467,6 +1470,10 @@ contains
          !     call clm_pf_write_restart(rdate)
          ! end if
          !----------------------------------------------
+
+         if (use_pflotran_via_emi) then
+            call EMI_Write_Restart(EM_ID_PFLOTRAN, rdate)
+         endif
 
 
           call t_stopf('clm_drv_io_wrest')
