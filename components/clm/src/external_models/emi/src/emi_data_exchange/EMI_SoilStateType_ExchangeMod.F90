@@ -317,7 +317,8 @@ contains
          watsat => soilstate_vars%watsat_col , &
          hksat  => soilstate_vars%hksat_col  , &
          bsw    => soilstate_vars%bsw_col    , &
-         sucsat => soilstate_vars%sucsat_col   &
+         sucsat => soilstate_vars%sucsat_col , &
+         watmin => soilstate_vars%watmin_col   &
          )
 
     count = 0
@@ -379,6 +380,15 @@ contains
                 c = filter(fc)
                 do j = 1, nlevgrnd
                    sucsat(c,j) = cur_data%data_real_2d(c,j)
+                enddo
+             enddo
+             cur_data%is_set = .true.
+
+          case (E2L_PARAMETER_WATMINC)
+             do fc = 1, num_filter
+                c = filter(fc)
+                do j = 1, nlevgrnd
+                   watmin(c,j) = cur_data%data_real_2d(c,j)
                 enddo
              enddo
              cur_data%is_set = .true.

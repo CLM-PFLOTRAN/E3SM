@@ -58,6 +58,7 @@ module ExternalModelPFLOTRANMod
      integer :: index_e2l_init_parameter_hksatc
      integer :: index_e2l_init_parameter_bswc
      integer :: index_e2l_init_parameter_sucsatc
+     integer :: index_e2l_init_parameter_watminc
 
      integer :: index_e2l_init_flux_mflx_snowlyr_col
      integer :: index_l2e_init_flux_mflx_snowlyr_col
@@ -290,6 +291,10 @@ contains
     id                                         = E2L_PARAMETER_SUCSATC
     call e2l_init_list%AddDataByID(id, number_em_stages, em_stages, index)
     this%index_e2l_init_parameter_sucsatc      = index
+
+    id                                         = E2L_PARAMETER_WATMINC
+    call e2l_init_list%AddDataByID(id, number_em_stages, em_stages, index)
+    this%index_e2l_init_parameter_watminc      = index
 
     deallocate(em_stages)
 
@@ -726,6 +731,7 @@ contains
     real(r8)    , pointer :: e2l_hksatc(:,:)
     real(r8)    , pointer :: e2l_bswc(:,:)
     real(r8)    , pointer :: e2l_sucsatc(:,:)
+    real(r8)    , pointer :: e2l_watminc(:,:)
 
     real(r8)    , pointer :: dz(:,:)
 
@@ -734,6 +740,7 @@ contains
     PetscScalar , pointer :: hksat_clm_loc(:)
     PetscScalar , pointer :: bsw_clm_loc(:)
     PetscScalar , pointer :: sucsat_clm_loc(:)
+    PetscScalar , pointer :: thetares_clm_loc(:)
     PetscErrorCode        :: ierr
 
     character(len= 128)   :: subname = 'extract_data_for_elm'
@@ -761,7 +768,8 @@ contains
     call e2l_init_list%GetPointerToReal2D(this%index_e2l_init_parameter_hksatc      , e2l_hksatc  )
     call e2l_init_list%GetPointerToReal2D(this%index_e2l_init_parameter_bswc        , e2l_bswc    )
     call e2l_init_list%GetPointerToReal2D(this%index_e2l_init_parameter_sucsatc     , e2l_sucsatc )
-    
+    call e2l_init_list%GetPointerToReal2D(this%index_e2l_init_parameter_watminc     , e2l_watminc )
+
     call pflotranModelGetSoilProp(this%pflotran_m)
 
     ! Set initial value of for ELM
@@ -774,6 +782,7 @@ contains
     call VecGetArrayF90(clm_pf_idata%hksat_x2_clm , hksat_clm_loc  , ierr)
     call VecGetArrayF90(clm_pf_idata%bsw2_clm     , bsw_clm_loc    , ierr)
     call VecGetArrayF90(clm_pf_idata%sucsat2_clm  , sucsat_clm_loc , ierr)
+    call VecGetArrayF90(clm_pf_idata%thetares2_clm, thetares_clm_loc , ierr)
 
     do c = bounds_proc_begc, bounds_proc_endc
        if (col_active(c) == 1) then
@@ -796,6 +805,7 @@ contains
                    e2l_hksatc(c,j)  = hksat_clm_loc(pf_j)
                    e2l_bswc(c,j)    = bsw_clm_loc(pf_j)
                    e2l_sucsatc(c,j) = sucsat_clm_loc(pf_j)
+                   e2l_watminc(c,j) = thetares_clm_loc(pf_j)
                 else
                    e2l_h2osoi_liq(c,j) = e2l_h2osoi_liq(c,nlevmapped)
                    e2l_h2osoi_vol(c,j) = e2l_h2osoi_vol(c,nlevmapped)
@@ -804,6 +814,7 @@ contains
                    e2l_hksatc(c,j)     = e2l_hksatc(c,nlevmapped)
                    e2l_bswc(c,j)       = e2l_bswc(c,nlevmapped)
                    e2l_sucsatc(c,j)    = e2l_sucsatc(c,nlevmapped)
+                   e2l_watminc(c,j)    = e2l_watminc(c,nlevmapped)
                 end if
 
              enddo
@@ -819,6 +830,7 @@ contains
     call VecRestoreArrayF90(clm_pf_idata%hksat_x2_clm , hksat_clm_loc  , ierr)
     call VecRestoreArrayF90(clm_pf_idata%bsw2_clm     , bsw_clm_loc    , ierr)
     call VecRestoreArrayF90(clm_pf_idata%sucsat2_clm  , sucsat_clm_loc , ierr)
+    call VecRestoreArrayF90(clm_pf_idata%thetares2_clm, thetares_clm_loc , ierr)
 
    end subroutine extract_data_for_elm
 
